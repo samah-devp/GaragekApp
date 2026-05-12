@@ -1,0 +1,26 @@
+{
+  "name": "ڨاراجك - إدارة ورشة ميكانيكي",
+  "short_name": "ڨاراجك",
+  "description": "نظام متكامل لإدارة ورشات الميكانيكا - المواعيد، الفواتير، الديون، المخزون",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1565C0",
+  "background_color": "#F5F7FA",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "Garagek.png.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "Garagek1.png.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

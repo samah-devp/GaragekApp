@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1565C0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<title>ڨاراجك - إدارة ورشة ميكانيكي</title>
+<style>
+:root {
+  --primary: #1565C0;
+  --primary-dark: #0D47A1;
+  --primary-light: #1976D2;
+  --secondary: #37474F;
+  --success: #2E7D32;
+  --warning: #E65100;
+  --danger: #C62828;
+  --bg: #F5F7FA;
+  --card: #FFFFFF;
+  --text: #212121;
+  --text-secondary: #616161;
+  --border: #E0E0E0;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --radius: 10px;
+  --nav-height: 65px;
+  --header-height: 56px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; min-height: 100vh; }
+
+/* Header */
+header {
+  background: var(--primary); color: #fff; padding: 12px 16px;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--header-height); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+
+/* Main */
+main { padding: calc(var(--header-height) + 8px) 12px calc(var(--nav-height) + 16px); }
+
+/* Views */
+.view { display: none; }
+.view.active { display: block; }
+
+/* Navigation */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: #fff; height: var(--nav-height);
+  display: flex; align-items: center; justify-content: space-around;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  border-top: 1px solid var(--border);
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; padding: 6px 10px; cursor: pointer; transition: 0.2s;
+  color: var(--text-secondary); font-size: 10px; font-weight: 500; position: relative;
+  min-width: 50px; border: none; background: none;
+}
+.nav-item svg { width: 22px; height: 22px; fill: currentColor; }
+.nav-item.active { color: var(--primary); }
+.nav-item.active::after {
+  content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 30px; height: 3px; background: var(--primary); border-radius: 0 0 3px 3px;
+}
+.nav-badge {
+  position: absolute; top: 2px; right: 2px; background: var(--danger); color: #fff;
+  font-size: 9px; width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-weight: 700;
+}
+
+/* Cards */
+.card {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 16px; margin-bottom: 12px;
+}
+.card-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+
+/* Dashboard Stats */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 14px; text-align: center;
+}
+.stat-card .stat-value { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-card .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+.stat-card.danger .stat-value { color: var(--danger); }
+.stat-card.success .stat-value { color: var(--success); }
+.stat-card.warning .stat-value { color: var(--warning); }
+
+/* Buttons */
+.btn {
+  padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  font-family: inherit;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-secondary { background: var(--secondary); color: #fff; }
+.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-block { width: 100%; justify-content: center; }
+.btn-icon { width: 36px; height: 36px; padding: 0; justify-content: center; border-radius: 8px; }
+
+/* Forms */
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+.form-control {
+  width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 8px;
+  font-size: 14px; font-family: inherit; transition: 0.2s; background: #fff;
+}
+.form-control:focus { outline: none; border-color: var(--primary); }
+textarea.form-control { resize: vertical; min-height: 60px; }
+select.form-control { appearance: auto; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--border); }
+th { background: var(--bg); font-weight: 600; color: var(--text-secondary); font-size: 12px; }
+tr:hover td { background: #F8FAFB; }
+
+/* Badges */
+.badge {
+  display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;
+}
+.badge-success { background: #E8F5E9; color: var(--success); }
+.badge-warning { background: #FFF3E0; color: var(--warning); }
+.badge-danger { background: #FFEBEE; color: var(--danger); }
+.badge-info { background: #E3F2FD; color: var(--primary); }
+.badge-secondary { background: #F5F5F5; color: var(--text-secondary); }
+
+/* Bottom action bar */
+.action-bar {
+  position: fixed; bottom: var(--nav-height); left: 0; right: 0; z-index: 90;
+  padding: 10px 12px; background: #fff; border-top: 1px solid var(--border);
+  display: flex; gap: 8px; box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+}
+.action-bar .btn { flex: 1; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); display: none; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-content {
+  background: #fff; border-radius: 16px 16px 0 0; width: 100%; max-width: 480px;
+  max-height: 85vh; overflow-y: auto; padding: 20px; animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-size: 16px; }
+.modal-close {
+  width: 32px; height: 32px; border: none; background: var(--bg); border-radius: 50%;
+  font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+}
+.modal-footer { display: flex; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+.modal-footer .btn { flex: 1; }
+
+/* Search */
+.search-bar {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.search-bar input { flex: 1; }
+.search-bar select { width: auto; min-width: 100px; }
+
+/* List items */
+.list-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px; background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); margin-bottom: 8px; gap: 8px;
+}
+.list-item-content { flex: 1; min-width: 0; }
+.list-item-title { font-size: 14px; font-weight: 600; }
+.list-item-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.list-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--text-secondary);
+}
+.empty-state svg { width: 60px; height: 60px; fill: var(--border); margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* Debt specific */
+.debt-overdue { border-right: 4px solid var(--danger); }
+.debt-partial { border-right: 4px solid var(--warning); }
+.debt-paid { border-right: 4px solid var(--success); }
+.debt-none { border-right: 4px solid var(--border); }
+
+.debt-summary {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;
+}
+.debt-summary-item { text-align: center; padding: 10px; border-radius: 8px; background: var(--card); box-shadow: var(--shadow); }
+.debt-summary-item .ds-value { font-size: 18px; font-weight: 700; }
+.debt-summary-item .ds-label { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+.debt-summary-item.danger .ds-value { color: var(--danger); }
+.debt-summary-item.success .ds-value { color: var(--success); }
+
+/* Dynamic parts table in invoice form */
+.parts-table { margin: 8px 0; }
+.parts-table th, .parts-table td { padding: 6px 4px; font-size: 12px; }
+.parts-table input { width: 100%; padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; font-family: inherit; }
+.parts-table .btn-icon { width: 28px; height: 28px; font-size: 14px; }
+
+/* Filters row */
+.filters { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.filters input, .filters select { flex: 1; min-width: 120px; }
+
+/* Progress bar */
+.progress-bar {
+  height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 4px 0;
+}
+.progress-bar-fill { height: 100%; background: var(--success); border-radius: 3px; transition: width 0.3s; }
+.progress-bar-fill.warning { background: var(--warning); }
+.progress-bar-fill.danger { background: var(--danger); }
+
+/* Print invoice */
+.invoice-print { display: none; }
+
+/* Responsive - Desktop */
+@media (min-width: 768px) {
+  main { max-width: 800px; margin: 0 auto; }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .modal-content { border-radius: 16px; margin-bottom: 40px; }
+  .debt-summary { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Notifications */
+.toast {
+  position: fixed; bottom: calc(var(--nav-height) + 16px); left: 50%; transform: translateX(-50%);
+  background: var(--secondary); color: #fff; padding: 12px 24px; border-radius: 8px;
+  font-size: 13px; z-index: 300; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  opacity: 0; transition: 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; bottom: calc(var(--nav-height) + 24px); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+
+/* Welcome modal */
+.welcome-logo {
+  text-align: center; margin-bottom: 20px;
+}
+.welcome-logo svg { width: 80px; height: 80px; }
+.welcome-logo h2 { font-size: 22px; margin-top: 8px; color: var(--primary); }
+.welcome-features { list-style: none; margin: 16px 0; }
+.welcome-features li { padding: 8px 0; font-size: 13px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Part row highlight */
+.low-stock { color: var(--danger); font-weight: 600; }
+
+/* Status dot */
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 6px; }
+.status-dot.green { background: var(--success); }
+.status-dot.orange { background: var(--warning); }
+.status-dot.red { background: var(--danger); }
+.status-dot.gray { background: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<header><h1>ڨاراجك</h1></header>
+
+<main id="mainContent">
+
+<!-- ========== DASHBOARD ========== -->
+<section id="viewDashboard" class="view active">
+  <div class="stats-grid" id="dashStats"></div>
+  <div class="card">
+    <div class="card-title">تنبيهات هامة</div>
+    <div id="dashAlerts"><p style="color:var(--text-secondary);font-size:13px;">لا توجد تنبيهات</p></div>
+  </div>
+  <div class="card">
+    <div class="card-title">المواعيد القادمة</div>
+    <div id="dashAppointments"></div>
+  </div>
+</section>
+
+<!-- ========== APPOINTMENTS ========== -->
+<section id="viewAppointments" class="view">
+  <div class="search-bar">
+    <input class="form-control" id="apptSearch" placeholder="ابحث عن موعد..." oninput="renderAppointments()">
+    <button class="btn btn-primary" onclick="openAppointmentModal()">+ إضافة</button>
+  </div>
+  <div id="appointmentsList"></div>
+</section>
+
+<!-- ========== INVOICES ========== -->
+<section id="viewInvoices" class="view">
+  <div class="search-bar">
+    <input class="form-control" id="invSearch" placeholder="ابحث عن فاتورة..." oninput="renderInvoices()">
+    <select class="form-control" id="invFilter" onchange="renderInvoices()">
+      <option value="all">الكل</option>
+      <option value="completed">مكتملة</option>
+      <option value="pending">قيد الانتظار</option>
+      <option value="paid">مدفوعة</option>
+    </select>
+  </div>
+  <button class="btn btn-primary btn-block" onclick="openInvoiceModal()">+ فاتورة جديدة</button>
+  <div style="margin-top:12px" id="invoicesList"></div>
+</section>
+
+<!-- ========== DEBTS ========== -->
+<section id="viewDebts" class="view">
+  <div class="debt-summary" id="debtSummary"></div>
+  <div class="card" style="padding:12px;">
+    <div class="filters">
+      <input class="form-control" id="debtSearch" placeholder="ابحث عن عميل..." oninput="renderDebts()">
+      <select class="form-control" id="debtFilter" onchange="renderDebts()">
+        <option value="all">الكل</option>
+        <option value="unpaid">لم يتم الدفع</option>
+        <option value="partial">مسدد جزئياً</option>
+        <option value="fully">مسدد بالكامل</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin:0;">
+      <input class="form-control" id="debtDateFrom" type="date" onchange="renderDebts()">
+    </div>
+  </div>
+  <div id="debtsList"></div>
+</section>
+
+<!-- ========== INVENTORY ========== -->
+<section id="viewInventory" class="view">
+  <div class="search-bar">
+    <input class="form-control" id="invSearchParts" placeholder="ابحث عن قطعة..." oninput="renderInventory()">
+    <button class="btn btn-primary" onclick="openInventoryModal()">+ إضافة</button>
+  </div>
+  <div id="inventoryAlerts" style="margin-bottom:8px;"></div>
+  <div id="inventoryList"></div>
+</section>
+
+</main>
+
+<!-- ========== NAVIGATION ========== -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-item active" data-view="viewDashboard">
+    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+    <span>الرئيسية</span>
+  </button>
+  <button class="nav-item" data-view="viewAppointments">
+    <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
+    <span>المواعيد</span>
+  </button>
+  <button class="nav-item" data-view="viewInvoices">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13zM6 20V4h5v7h7v9H6z"/></svg>
+    <span>الفواتير</span>
+  </button>
+  <button class="nav-item" data-view="viewDebts">
+    <svg viewBox="0 0 24 24"><path d="M11.5 1L2 6v2l9.5 5 9.5-5V6L11.5 1zM2 16v2l9.5 5 9.5-5v-2l-9.5 5L2 16zm0-5v2l9.5 5 9.5-5v-2l-9.5 5L2 11z"/></svg>
+    <span>الديون</span>
+    <span class="nav-badge" id="debtBadge" style="display:none">0</span>
+  </button>
+  <button class="nav-item" data-view="viewInventory">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-.9-2-2-2zm-5 12H9v-2h6v2zm5-7H4V4h16v3z"/></svg>
+    <span>المخزون</span>
+  </button>
+</nav>
+
+<!-- ========== TOAST ========== -->
+<div class="toast" id="toast"></div>
+
+<!-- ========== WELCOME MODAL ========== -->
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal-content">
+    <div class="welcome-logo">
+      <svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="20" fill="#1565C0"/><text x="50" y="62" text-anchor="middle" fill="white" font-size="40" font-weight="bold" font-family="sans-serif">ڨ</text></svg>
+      <h2>مرحباً بك في ڨاراجك</h2>
+      <p style="color:var(--text-secondary);font-size:13px;margin-top:4px;">نظام إدارة ورشات الميكانيكا</p>
+    </div>
+    <ul class="welcome-features">
+      <li>📅 إدارة المواعيد وجدولة الخدمات</li>
+      <li>📄 إنشاء الفواتير وتتبع الخدمات</li>
+      <li>💰 متابعة الديون والمدفوعات</li>
+      <li>📦 إدارة المخزون وقطع الغيار</li>
+      <li>📊 لوحة تحكم شاملة بإحصائيات ورشتك</li>
+    </ul>
+    <p style="font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:16px;">
+      جميع البيانات مخزنة محلياً على جهازك 🔒
+    </p>
+    <button class="btn btn-primary btn-block" onclick="closeWelcome()">ابدأ الآن</button>
+  </div>
+</div>
+
+<!-- ========== APPOINTMENT MODAL ========== -->
+<div class="modal-overlay" id="appointmentModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="apptModalTitle">موعد جديد</h3>
+      <button class="modal-close" onclick="closeModal('appointmentModal')">✕</button>
+    </div>
+    <input type="hidden" id="apptEditId">
+    <div class="form-group">
+      <label>اسم العميل *</label>
+      <input class="form-control" id="apptName" placeholder="أدخل اسم العميل">
+    </div>
+    <div class="form-group">
+      <label>رقم الهاتف *</label>
+      <input class="form-control" id="apptPhone" type="tel" placeholder="05XX XX XX XX">
+    </div>
+    <div class="form-group">
+      <label>نوع المركبة *</label>
+      <input class="form-control" id="apptVehicle" placeholder="مثال: رونو كليو 2">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>التاريخ *</label>
+        <input class="form-control" id="apptDate" type="date">
+      </div>
+      <div class="form-group">
+        <label>الساعة *</label>
+        <input class="form-control" id="apptTime" type="time">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>ملاحظات</label>
+      <textarea class="form-control" id="apptNotes" placeholder="ملاحظات إضافية..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('appointmentModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveAppointment()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== INVOICE MODAL ========== -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="invModalTitle">فاتورة جديدة</h3>
+      <button class="modal-close" onclick="closeModal('invoiceModal')">✕</button>
+    </div>
+    <input type="hidden" id="invEditId">
+    <div class="form-group">
+      <label>اسم العميل *</label>
+      <input class="form-control" id="invName" placeholder="أدخل اسم العميل">
+    </div>
+    <div class="form-group">
+      <label>رقم الهاتف</label>
+      <input class="form-control" id="invPhone" type="tel" placeholder="05XX XX XX XX">
+    </div>
+    <div class="form-group">
+      <label>نوع المركبة</label>
+      <input class="form-control" id="invVehicle" placeholder="مثال: رونو كليو 2">
+    </div>
+    <div class="form-group">
+      <label>تاريخ الخدمة *</label>
+      <input class="form-control" id="invDate" type="date">
+    </div>
+    <div class="form-group">
+      <label>وصف الخدمة المقدمة</label>
+      <textarea class="form-control" id="invDesc" placeholder="اكتب وصف الخدمة التي قمت بها..."></textarea>
+    </div>
+
+    <div class="card" style="padding:12px;background:var(--bg);">
+      <div class="card-title" style="font-size:13px;">القطع المستخدمة</div>
+      <div class="parts-table">
+        <table>
+          <thead><tr><th>القطعة</th><th>الكمية</th><th>سعر الوحدة</th><th>المجموع</th><th></th></tr></thead>
+          <tbody id="partsTableBody"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-outline btn-sm btn-block" onclick="addPartRow()" style="margin-top:8px;">+ إضافة قطعة</button>
+    </div>
+
+    <div class="form-group" style="margin-top:12px;">
+      <label>ثمن الخدمة اليدوية (د.ج)</label>
+      <input class="form-control" id="invLabor" type="number" placeholder="0" oninput="updateInvoiceTotal()">
+    </div>
+
+    <div class="card" style="background:var(--primary);color:#fff;text-align:center;padding:12px;">
+      <div style="font-size:13px;opacity:0.9;">المجموع الكلي</div>
+      <div style="font-size:24px;font-weight:700;" id="invTotalDisplay">0 د.ج</div>
+    </div>
+
+    <div class="form-group">
+      <label>حالة الفاتورة</label>
+      <select class="form-control" id="invStatus">
+        <option value="completed">مكتملة</option>
+        <option value="pending">قيد الانتظار</option>
+        <option value="paid">مدفوعة</option>
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('invoiceModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveInvoice()">حفظ الفاتورة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== INVOICE DETAIL MODAL ========== -->
+<div class="modal-overlay" id="invoiceDetailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>تفاصيل الفاتورة</h3>
+      <button class="modal-close" onclick="closeModal('invoiceDetailModal')">✕</button>
+    </div>
+    <div id="invoiceDetailContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('invoiceDetailModal')">إغلاق</button>
+      <button class="btn btn-outline" onclick="editFromDetail()">تعديل</button>
+      <button class="btn btn-primary" onclick="printInvoice(currentInvoiceId)">طباعة</button>
+      <button class="btn btn-danger" onclick="deleteInvoice(currentInvoiceId)">حذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAYMENT MODAL ========== -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>تسجيل دفعة جديدة</h3>
+      <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
+    </div>
+    <div id="paymentInvoiceInfo" style="background:var(--bg);padding:12px;border-radius:8px;margin-bottom:12px;font-size:13px;"></div>
+    <div class="form-group">
+      <label>مبلغ الدفعة (د.ج) *</label>
+      <input class="form-control" id="payAmount" type="number" placeholder="أدخل المبلغ">
+    </div>
+    <div class="form-group">
+      <label>تاريخ الدفعة *</label>
+      <input class="form-control" id="payDate" type="date">
+    </div>
+    <div class="form-group">
+      <label>ملاحظات (اختياري)</label>
+      <input class="form-control" id="payNotes" placeholder="تاريخ التسديد المتوقع للقسط التالي...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
+      <button class="btn btn-success" onclick="savePayment()">تسجيل الدفعة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== INVENTORY MODAL ========== -->
+<div class="modal-overlay" id="inventoryModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="invModalTitlePart">قطعة جديدة</h3>
+      <button class="modal-close" onclick="closeModal('inventoryModal')">✕</button>
+    </div>
+    <input type="hidden" id="invEditPartId">
+    <div class="form-group">
+      <label>اسم القطعة *</label>
+      <input class="form-control" id="partName" placeholder="أدخل اسم القطعة">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>الكمية المتوفرة *</label>
+        <input class="form-control" id="partQty" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>سعر الوحدة (د.ج) *</label>
+        <input class="form-control" id="partPrice" type="number" placeholder="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>الحد الأدنى للمخزون *</label>
+      <input class="form-control" id="partMin" type="number" placeholder="0">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('inventoryModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveInventoryItem()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA LAYER ====================
+const DB = {
+  _prefix: 'garagek_',
+  get(key, def) {
+    try {
+      const d = localStorage.getItem(this._prefix + key);
+      return d ? JSON.parse(d) : def;
+    } catch(e) { return def; }
+  },
+  set(key, data) {
+    localStorage.setItem(this._prefix + key, JSON.stringify(data));
+  },
+  getAppointments() { return this.get('appointments', []); },
+  setAppointments(d) { this.set('appointments', d); },
+  getInvoices() { return this.get('invoices', []); },
+  setInvoices(d) { this.set('invoices', d); },
+  getInventory() { return this.get('inventory', []); },
+  setInventory(d) { this.set('inventory', d); },
+  getSettings() { return this.get('settings', { firstVisit: true, invoiceCounter: 1 }); },
+  setSettings(d) { this.set('settings', d); }
+};
+
+// ==================== UTILITIES ====================
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 4); }
+
+function formatCurrency(n) {
+  return Number(n).toLocaleString('fr-DZ') + ' د.ج';
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const parts = d.split('-');
+  if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+  return d;
+}
+
+function formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const months = ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  return parseInt(parts[2]) + ' ' + months[parseInt(parts[1]) - 1] + ' ' + parts[0];
+}
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+
+function getInvoiceNumber() {
+  const s = DB.getSettings();
+  const num = s.invoiceCounter || 1;
+  s.invoiceCounter = num + 1;
+  DB.setSettings(s);
+  return num;
+}
+
+function calcTotal(parts, labor) {
+  const partsTotal = parts.reduce((s, p) => s + (Number(p.totalPrice) || 0), 0);
+  return partsTotal + (Number(labor) || 0);
+}
+
+function getDebtStatus(inv) {
+  const totalPaid = getTotalPaid(inv);
+  if (totalPaid >= inv.totalAmount) return 'fully';
+  if (totalPaid > 0) return 'partial';
+  return 'unpaid';
+}
+
+function getDebtStatusText(status) {
+  return { fully: 'مسدد بالكامل', partial: 'مسدد جزئياً', unpaid: 'لم يتم دفع أي مبلغ' }[status] || '';
+}
+
+function getTotalPaid(inv) {
+  return (inv.payments || []).reduce((s, p) => s + (p.amount || 0), 0);
+}
+
+function getLaborIncomeFromPayments(inv, month, year) {
+  let remaining = inv.laborCost || 0;
+  let income = 0;
+  const all = (inv.payments || []).filter(p => p.amount > 0).sort((a, b) => a.date.localeCompare(b.date));
+  for (const p of all) {
+    if (remaining <= 0) break;
+    const taken = Math.min(p.amount, remaining);
+    const d = new Date(p.date + 'T00:00:00');
+    if (d.getMonth() === month && d.getFullYear() === year) income += taken;
+    remaining -= taken;
+  }
+  return income;
+}
+
+function getLatestPaymentDate(inv) {
+  const paid = (inv.payments || []).filter(p => p.amount > 0);
+  if (!paid.length) return '';
+  return paid.sort((a, b) => b.date.localeCompare(a.date))[0].date;
+}
+
+// ==================== TOAST ====================
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ==================== MODALS ====================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('open');
+  }
+});
+
+// ==================== NAVIGATION ====================
+function navigateTo(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${viewId}"]`).classList.add('active');
+  if (viewId === 'viewDashboard') renderDashboard();
+  if (viewId === 'viewAppointments') renderAppointments();
+  if (viewId === 'viewInvoices') renderInvoices();
+  if (viewId === 'viewDebts') renderDebts();
+  if (viewId === 'viewInventory') renderInventory();
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    navigateTo(this.dataset.view);
+  });
+});
+
+// ==================== WELCOME ====================
+function closeWelcome() {
+  closeModal('welcomeModal');
+  const s = DB.getSettings();
+  s.firstVisit = false;
+  DB.setSettings(s);
+}
+
+(function checkFirstVisit() {
+  const s = DB.getSettings();
+  if (s.firstVisit !== false) {
+    openModal('welcomeModal');
+  }
+})();
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  const invs = DB.getInvoices();
+  const appts = DB.getAppointments();
+  const invItems = DB.getInventory();
+
+  const today = todayStr();
+  const todayAppts = appts.filter(a => a.date === today);
+  const todayInvs = invs.filter(i => i.serviceDate === today);
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  const monthlyIncome = invs.reduce((s, inv) => s + getLaborIncomeFromPayments(inv, thisMonth, thisYear), 0);
+  const totalDebt = invs.reduce((s, i) => s + Math.max(0, i.totalAmount - getTotalPaid(i)), 0);
+  const debtors = invs.filter(i => getDebtStatus(i) !== 'fully').length;
+  const lowStock = invItems.filter(p => p.quantity <= p.minStock).length;
+
+  const stats = [
+    { label: 'مواعيد اليوم', value: todayAppts.length, cls: '' },
+    { label: 'فواتير اليوم', value: todayInvs.length, cls: '' },
+    { label: 'الدخل الشهري', value: formatCurrency(monthlyIncome), cls: 'success' },
+    { label: 'الديون المعلقة', value: formatCurrency(totalDebt), cls: 'danger' },
+    { label: 'عملاء بديون', value: debtors, cls: 'warning' },
+    { label: 'قطع ناقصة', value: lowStock, cls: 'danger' }
+  ];
+
+  document.getElementById('dashStats').innerHTML = stats.map(s =>
+    `<div class="stat-card${s.cls ? ' ' + s.cls : ''}">
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>`
+  ).join('');
+
+  // Alerts
+  let alerts = [];
+  const overdues = invs.filter(i => getDebtStatus(i) === 'unpaid');
+  if (overdues.length) alerts.push(`<p style="color:var(--danger);font-size:13px;padding:4px 0;">⚠ ${overdues.length} فاتورة غير مدفوعة بالكامل</p>`);
+  if (lowStock) alerts.push(`<p style="color:var(--warning);font-size:13px;padding:4px 0;">⚠ ${lowStock} قطعة تحتاج إلى تجديد المخزون</p>`);
+  const upcoming = appts.filter(a => a.date >= today).sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).slice(0, 5);
+  if (upcoming.length) alerts.push(`<p style="color:var(--primary);font-size:13px;padding:4px 0;">📅 ${upcoming.length} موعد قادم</p>`);
+  document.getElementById('dashAlerts').innerHTML = alerts.length ? alerts.join('') : '<p style="color:var(--text-secondary);font-size:13px;">✓ لا توجد تنبيهات</p>';
+
+  // Upcoming appointments
+  const upcomingAppts = appts.filter(a => a.date >= today).sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).slice(0, 5);
+  const container = document.getElementById('dashAppointments');
+  if (!upcomingAppts.length) {
+    container.innerHTML = '<p style="color:var(--text-secondary);font-size:13px;">لا توجد مواعيد قادمة</p>';
+  } else {
+    container.innerHTML = upcomingAppts.map(a =>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span><strong>${a.clientName}</strong> - ${a.vehicleType}</span>
+        <span style="color:var(--text-secondary);">${formatDate(a.date)} ${a.time}</span>
+      </div>`
+    ).join('');
+  }
+}
+
+// ==================== APPOINTMENTS ====================
+function renderAppointments() {
+  const appts = DB.getAppointments();
+  const search = (document.getElementById('apptSearch').value || '').trim().toLowerCase();
+  const today = todayStr();
+
+  let filtered = appts;
+  if (search) {
+    filtered = appts.filter(a =>
+      a.clientName.toLowerCase().includes(search) ||
+      a.phone.includes(search) ||
+      a.vehicleType.toLowerCase().includes(search)
+    );
+  }
+  filtered.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+  const container = document.getElementById('appointmentsList');
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><p>${search ? 'لا توجد نتائج للبحث' : 'لا توجد مواعيد مسجلة'}</p><button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="openAppointmentModal()">+ إضافة موعد</button></div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(a => {
+    const isToday = a.date === today;
+    const isPast = a.date < today;
+    return `<div class="list-item" style="${isToday ? 'border-right:4px solid var(--primary);' : isPast ? 'opacity:0.6;' : ''}">
+      <div class="list-item-content">
+        <div class="list-item-title">${a.clientName}</div>
+        <div class="list-item-sub">${a.vehicleType} · ${a.phone}</div>
+        <div class="list-item-sub" style="margin-top:2px;">
+          <span style="color:var(--primary);font-weight:600;">${formatDate(a.date)}</span> · ${a.time}
+          ${a.notes ? '· ' + a.notes : ''}
+        </div>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-outline btn-sm" onclick="editAppointment('${a.id}')">تعديل</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAppointment('${a.id}')">حذف</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAppointmentModal(data) {
+  document.getElementById('apptEditId').value = data ? data.id : '';
+  document.getElementById('apptModalTitle').textContent = data ? 'تعديل موعد' : 'موعد جديد';
+  document.getElementById('apptName').value = data ? data.clientName : '';
+  document.getElementById('apptPhone').value = data ? data.phone : '';
+  document.getElementById('apptVehicle').value = data ? data.vehicleType : '';
+  document.getElementById('apptDate').value = data ? data.date : todayStr();
+  document.getElementById('apptTime').value = data ? data.time : '';
+  document.getElementById('apptNotes').value = data ? data.notes : '';
+  openModal('appointmentModal');
+}
+
+function saveAppointment() {
+  const id = document.getElementById('apptEditId').value;
+  const clientName = document.getElementById('apptName').value.trim();
+  const phone = document.getElementById('apptPhone').value.trim();
+  const vehicleType = document.getElementById('apptVehicle').value.trim();
+  const date = document.getElementById('apptDate').value;
+  const time = document.getElementById('apptTime').value;
+  const notes = document.getElementById('apptNotes').value.trim();
+
+  if (!clientName || !phone || !vehicleType || !date || !time) {
+    showToast('يرجى ملء جميع الحقول المطلوبة (*)', 'error');
+    return;
+  }
+
+  let appts = DB.getAppointments();
+  if (id) {
+    const idx = appts.findIndex(a => a.id === id);
+    if (idx !== -1) {
+      appts[idx] = { ...appts[idx], clientName, phone, vehicleType, date, time, notes };
+    }
+    showToast('تم تعديل الموعد بنجاح', 'success');
+  } else {
+    appts.push({ id: genId(), clientName, phone, vehicleType, date, time, notes, createdAt: new Date().toISOString() });
+    showToast('تم إضافة الموعد بنجاح', 'success');
+  }
+  DB.setAppointments(appts);
+  closeModal('appointmentModal');
+  renderAppointments();
+}
+
+function editAppointment(id) {
+  const appts = DB.getAppointments();
+  const a = appts.find(x => x.id === id);
+  if (a) openAppointmentModal(a);
+}
+
+function deleteAppointment(id) {
+  if (!confirm('هل أنت متأكد من حذف هذا الموعد؟')) return;
+  let appts = DB.getAppointments();
+  appts = appts.filter(a => a.id !== id);
+  DB.setAppointments(appts);
+  renderAppointments();
+  showToast('تم حذف الموعد', '');
+}
+
+// ==================== INVOICES ====================
+let currentInvoiceId = null;
+
+function renderInvoices() {
+  const invs = DB.getInvoices();
+  const search = (document.getElementById('invSearch').value || '').trim().toLowerCase();
+  const filter = document.getElementById('invFilter').value;
+
+  let filtered = invs;
+  if (search) {
+    filtered = invs.filter(i =>
+      i.clientName.toLowerCase().includes(search) ||
+      i.phone.includes(search) ||
+      String(i.invoiceNumber).includes(search)
+    );
+  }
+  if (filter !== 'all') {
+    filtered = filtered.filter(i => i.status === filter);
+  }
+  filtered.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  const container = document.getElementById('invoicesList');
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><p>لا توجد فواتير</p></div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(i => {
+    const statusMap = { completed: 'مكتملة', pending: 'قيد الانتظار', paid: 'مدفوعة' };
+    const badgeMap = { completed: 'badge-info', pending: 'badge-warning', paid: 'badge-success' };
+    return `<div class="list-item" onclick="openInvoiceDetail('${i.id}')" style="cursor:pointer;">
+      <div class="list-item-content">
+        <div class="list-item-title">فاتورة رقم ${i.invoiceNumber} - ${i.clientName}</div>
+        <div class="list-item-sub">
+          ${i.vehicleType || ''} · ${formatDate(i.serviceDate)}
+          <span class="badge ${badgeMap[i.status] || 'badge-secondary'}" style="margin-right:8px;">${statusMap[i.status] || i.status}</span>
+        </div>
+        <div class="list-item-sub" style="font-weight:600;color:var(--primary);">${formatCurrency(i.totalAmount)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openInvoiceModal(data) {
+  document.getElementById('invEditId').value = data ? data.id : '';
+  document.getElementById('invModalTitle').textContent = data ? 'تعديل فاتورة' : 'فاتورة جديدة';
+  document.getElementById('invName').value = data ? data.clientName : '';
+  document.getElementById('invPhone').value = data ? data.phone : '';
+  document.getElementById('invVehicle').value = data ? data.vehicleType : '';
+  document.getElementById('invDate').value = data ? data.serviceDate : todayStr();
+  document.getElementById('invDesc').value = data ? data.serviceDescription : '';
+  document.getElementById('invLabor').value = data ? data.laborCost : '';
+  document.getElementById('invStatus').value = data ? data.status : 'completed';
+
+  const parts = data ? data.parts : [];
+  renderPartsTable(parts);
+  updateInvoiceTotal();
+  openModal('invoiceModal');
+}
+
+function renderPartsTable(parts) {
+  const tbody = document.getElementById('partsTableBody');
+  if (!parts.length) {
+    parts = [{ name: '', quantity: 1, unitPrice: 0, totalPrice: 0 }];
+  }
+  tbody.innerHTML = parts.map((p, i) =>
+    `<tr>
+      <td><input value="${p.name}" placeholder="القطعة" oninput="updatePart(${i},'name',this.value)"></td>
+      <td><input type="number" value="${p.quantity}" min="1" oninput="updatePart(${i},'quantity',this.value)"></td>
+      <td><input type="number" value="${p.unitPrice}" min="0" oninput="updatePart(${i},'unitPrice',this.value)"></td>
+      <td style="font-weight:600;">${formatCurrency(p.totalPrice)}</td>
+      <td><button class="btn btn-danger btn-icon" onclick="removePart(${i})">✕</button></td>
+    </tr>`
+  ).join('');
+}
+
+function getPartsData() {
+  const rows = document.querySelectorAll('#partsTableBody tr');
+  return Array.from(rows).map(row => {
+    const inputs = row.querySelectorAll('input');
+    const name = inputs[0] ? inputs[0].value : '';
+    const quantity = Number(inputs[1] ? inputs[1].value : 1) || 1;
+    const unitPrice = Number(inputs[2] ? inputs[2].value : 0) || 0;
+    const totalPrice = quantity * unitPrice;
+    return { name, quantity, unitPrice, totalPrice };
+  });
+}
+
+function addPartRow() {
+  const parts = getPartsData();
+  parts.push({ name: '', quantity: 1, unitPrice: 0, totalPrice: 0 });
+  renderPartsTable(parts);
+}
+
+function removePart(idx) {
+  let parts = getPartsData();
+  if (parts.length <= 1) return;
+  parts.splice(idx, 1);
+  renderPartsTable(parts);
+  updateInvoiceTotal();
+}
+
+function updatePart(idx, field, value) {
+  const parts = getPartsData();
+  if (field === 'name') parts[idx].name = value;
+  else if (field === 'quantity') parts[idx].quantity = Math.max(1, Number(value) || 1);
+  else if (field === 'unitPrice') parts[idx].unitPrice = Math.max(0, Number(value) || 0);
+  parts[idx].totalPrice = parts[idx].quantity * parts[idx].unitPrice;
+  const rows = document.querySelectorAll('#partsTableBody tr');
+  if (rows[idx]) rows[idx].querySelectorAll('td')[3].textContent = formatCurrency(parts[idx].totalPrice);
+  updateInvoiceTotal();
+}
+
+function updateInvoiceTotal() {
+  const parts = getPartsData();
+  const labor = Number(document.getElementById('invLabor').value) || 0;
+  const total = calcTotal(parts, labor);
+  document.getElementById('invTotalDisplay').textContent = formatCurrency(total);
+}
+
+function saveInvoice() {
+  const id = document.getElementById('invEditId').value;
+  const clientName = document.getElementById('invName').value.trim();
+  const phone = document.getElementById('invPhone').value.trim();
+  const vehicleType = document.getElementById('invVehicle').value.trim();
+  const serviceDate = document.getElementById('invDate').value;
+  const serviceDescription = document.getElementById('invDesc').value.trim();
+  const laborCost = Number(document.getElementById('invLabor').value) || 0;
+  const status = document.getElementById('invStatus').value;
+  const parts = getPartsData();
+  const totalAmount = calcTotal(parts, laborCost);
+
+  if (!clientName || !serviceDate) {
+    showToast('يرجى ملء اسم العميل وتاريخ الخدمة', 'error');
+    return;
+  }
+
+  let invs = DB.getInvoices();
+  let idx = -1;
+  if (id) {
+    idx = invs.findIndex(i => i.id === id);
+    if (idx !== -1) {
+      invs[idx] = { ...invs[idx], clientName, phone, vehicleType, serviceDate, serviceDescription, parts, laborCost, totalAmount, status };
+    }
+    showToast('تم تعديل الفاتورة بنجاح', 'success');
+  } else {
+    const invoiceNumber = getInvoiceNumber();
+    invs.push({
+      id: genId(), invoiceNumber, clientName, phone, vehicleType,
+      serviceDate, serviceDescription, parts, laborCost, totalAmount, status,
+      payments: [],
+      createdAt: new Date().toISOString()
+    });
+    showToast('تم إنشاء الفاتورة بنجاح', 'success');
+  }
+  // Normalize: ensure 'paid' status has a payment record
+  const savedInv = id ? invs[idx] : invs[invs.length - 1];
+  if (savedInv.status === 'paid' && getTotalPaid(savedInv) < savedInv.totalAmount) {
+    savedInv.payments.push({ id: genId(), date: savedInv.serviceDate, amount: savedInv.totalAmount - getTotalPaid(savedInv), notes: 'دفعة كاملة' });
+  }
+  DB.setInvoices(invs);
+  closeModal('invoiceModal');
+  renderInvoices();
+}
+
+function editFromDetail() {
+  const invs = DB.getInvoices();
+  const i = invs.find(x => x.id === currentInvoiceId);
+  if (i) { closeModal('invoiceDetailModal'); openInvoiceModal(i); }
+}
+
+function openInvoiceDetail(id) {
+  currentInvoiceId = id;
+  const invs = DB.getInvoices();
+  const i = invs.find(x => x.id === id);
+  if (!i) return;
+
+  const statusMap = { completed: 'مكتملة', pending: 'قيد الانتظار', paid: 'مدفوعة' };
+  const badgeMap = { completed: 'badge-info', pending: 'badge-warning', paid: 'badge-success' };
+  const totalPaid = getTotalPaid(i);
+  const remaining = Math.max(0, i.totalAmount - totalPaid);
+  const debtStatus = getDebtStatus(i);
+  const pct = i.totalAmount > 0 ? Math.round((totalPaid / i.totalAmount) * 100) : 0;
+
+  let partsHtml = '';
+  if (i.parts && i.parts.length) {
+    partsHtml = `<table style="margin:8px 0;"><thead><tr><th>القطعة</th><th>الكمية</th><th>سعر الوحدة</th><th>المجموع</th></tr></thead><tbody>
+      ${i.parts.map(p => `<tr><td>${p.name}</td><td>${p.quantity}</td><td>${formatCurrency(p.unitPrice)}</td><td>${formatCurrency(p.totalPrice)}</td></tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  let paymentsHtml = '';
+  if (i.payments && i.payments.length) {
+    paymentsHtml = `<div style="margin-top:12px;"><strong style="font-size:13px;">سجل المدفوعات:</strong>
+      <table style="margin-top:4px;"><thead><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظات</th></tr></thead><tbody>
+      ${i.payments.map(p => `<tr><td>${formatDate(p.date)}</td><td>${formatCurrency(p.amount)}</td><td>${p.notes || ''}</td></tr>`).join('')}
+    </tbody></table></div>`;
+  }
+
+  const pctClass = pct >= 100 ? 'success' : pct > 0 ? 'warning' : 'danger';
+
+  document.getElementById('invoiceDetailContent').innerHTML = `
+    <div style="font-size:13px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <strong style="font-size:16px;">فاتورة رقم ${i.invoiceNumber}</strong>
+        <span class="badge ${badgeMap[i.status] || 'badge-secondary'}">${statusMap[i.status] || i.status}</span>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">
+      <div><strong>العميل:</strong> ${i.clientName}</div>
+      <div><strong>الهاتف:</strong> ${i.phone || '—'}</div>
+      <div><strong>المركبة:</strong> ${i.vehicleType || '—'} ${i.year ? '(' + i.year + ')' : ''}</div>
+      <div><strong>تاريخ الخدمة:</strong> ${formatDate(i.serviceDate)}</div>
+      ${i.serviceDescription ? `<div><strong>الخدمة:</strong> ${i.serviceDescription}</div>` : ''}
+      <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">
+      ${partsHtml}
+      <div style="display:flex;justify-content:space-between;padding:4px 0;"><span>ثمن الخدمة اليدوية:</span><span>${formatCurrency(i.laborCost)}</span></div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:var(--primary);"><span>المجموع الكلي:</span><span>${formatCurrency(i.totalAmount)}</span></div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">
+      <div><strong>المدفوع:</strong> ${formatCurrency(totalPaid)} (${pct}%)</div>
+      <div class="progress-bar"><div class="progress-bar-fill ${pctClass}" style="width:${Math.min(100, pct)}%"></div></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;">
+        <span><strong>المتبقي:</strong></span>
+        <span style="color:${remaining > 0 ? 'var(--danger)' : 'var(--success)'};font-weight:700;">${formatCurrency(remaining)}</span>
+      </div>
+      <div><strong>حالة السداد:</strong> ${getDebtStatusText(debtStatus)}</div>
+      ${paymentsHtml}
+    </div>
+  `;
+
+  openModal('invoiceDetailModal');
+}
+
+function printInvoice(id) {
+  const invs = DB.getInvoices();
+  const i = invs.find(x => x.id === id);
+  if (!i) return;
+
+  const totalPaid = getTotalPaid(i);
+  const remaining = Math.max(0, i.totalAmount - totalPaid);
+
+  let partsRows = '';
+  if (i.parts && i.parts.length) {
+    partsRows = i.parts.map(p =>
+      `<tr><td style="padding:6px 8px;border:1px solid #ddd;text-align:right;">${p.name}</td>
+      <td style="padding:6px 8px;border:1px solid #ddd;text-align:center;">${p.quantity}</td>
+      <td style="padding:6px 8px;border:1px solid #ddd;text-align:left;">${p.unitPrice.toLocaleString()}</td>
+      <td style="padding:6px 8px;border:1px solid #ddd;text-align:left;">${p.totalPrice.toLocaleString()}</td></tr>`
+    ).join('');
+  }
+
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head>
+    <meta charset="UTF-8"><title>فاتورة رقم ${i.invoiceNumber}</title>
+    <style>
+      body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 30px; color: #333; max-width: 700px; margin: 0 auto; }
+      .header { text-align: center; border-bottom: 2px solid #1565C0; padding-bottom: 15px; margin-bottom: 20px; }
+      .header h1 { color: #1565C0; margin: 0; font-size: 24px; }
+      .header p { color: #666; margin: 4px 0 0; font-size: 14px; }
+      .info { margin-bottom: 20px; font-size: 13px; line-height: 1.8; }
+      .info table { width: 100%; }
+      .info td { padding: 2px 8px; }
+      table.items { width: 100%; border-collapse: collapse; margin: 15px 0; }
+      table.items th { background: #1565C0; color: #fff; padding: 8px; font-size: 13px; text-align: right; }
+      table.items td { padding: 6px 8px; border: 1px solid #ddd; font-size: 13px; }
+      .totals { margin-top: 15px; text-align: left; font-size: 14px; line-height: 2; }
+      .totals .grand { font-size: 20px; font-weight: 700; color: #1565C0; }
+      .footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #999; }
+      .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+      @media print { body { padding: 15px; } .no-print { display: none; } }
+    </style>
+  </head><body>
+    <div class="header">
+      <h1>ڨاراجك</h1>
+      <p>إدارة ورشات الميكانيك</p>
+    </div>
+    <div class="info">
+      <table>
+        <tr><td><strong>فاتورة رقم:</strong> ${i.invoiceNumber}</td><td><strong>التاريخ:</strong> ${formatDateDisplay(i.serviceDate)}</td></tr>
+        <tr><td><strong>العميل:</strong> ${i.clientName}</td><td><strong>الهاتف:</strong> ${i.phone || '—'}</td></tr>
+        <tr><td><strong>المركبة:</strong> ${i.vehicleType || '—'} ${i.year ? '(' + i.year + ')' : ''}</td><td></td></tr>
+      </table>
+    </div>
+    ${i.serviceDescription ? `<p><strong>الخدمة المقدمة:</strong><br>${i.serviceDescription}</p>` : ''}
+    ${partsRows ? `<table class="items"><thead><tr><th>القطعة</th><th>الكمية</th><th>سعر الوحدة (د.ج)</th><th>المجموع (د.ج)</th></tr></thead><tbody>${partsRows}</tbody></table>` : ''}
+    <div class="totals">
+      ${i.parts && i.parts.length ? `<div>مجموع القطع: ${i.parts.reduce((s,p) => s + p.totalPrice, 0).toLocaleString()} د.ج</div>` : ''}
+      <div>ثمن الخدمة اليدوية: ${i.laborCost.toLocaleString()} د.ج</div>
+      <hr style="border:none;border-top:2px solid #1565C0;">
+      <div class="grand">المجموع الكلي: ${i.totalAmount.toLocaleString()} د.ج</div>
+    </div>
+    <div class="footer">
+      <p>شكراً لتعاملكم معنا</p>
+      <p style="font-size:11px;">تم إنشاء هذه الفاتورة إلكترونياً</p>
+    </div>
+    <div class="no-print" style="text-align:center;margin-top:20px;">
+      <button onclick="window.print()" style="padding:10px 30px;background:#1565C0;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;">طباعة</button>
+    </div>
+  </body></html>`);
+  w.document.close();
+}
+
+function deleteInvoice(id) {
+  if (!confirm('هل أنت متأكد من حذف هذه الفاتورة؟')) return;
+  let invs = DB.getInvoices();
+  invs = invs.filter(i => i.id !== id);
+  DB.setInvoices(invs);
+  closeModal('invoiceDetailModal');
+  renderInvoices();
+  showToast('تم حذف الفاتورة', '');
+}
+
+// ==================== DEBTS ====================
+function renderDebts() {
+  const invs = DB.getInvoices();
+  const search = (document.getElementById('debtSearch').value || '').trim().toLowerCase();
+  const filter = document.getElementById('debtFilter').value;
+  const dateFrom = document.getElementById('debtDateFrom').value;
+
+  let filtered = invs.filter(i => getDebtStatus(i) !== 'fully');
+  if (search) {
+    filtered = filtered.filter(i =>
+      i.clientName.toLowerCase().includes(search) ||
+      i.phone.includes(search) ||
+      String(i.invoiceNumber).includes(search)
+    );
+  }
+  if (dateFrom) filtered = filtered.filter(i => i.serviceDate >= dateFrom);
+
+  const totalDebt = filtered.reduce((s, i) => s + Math.max(0, i.totalAmount - getTotalPaid(i)), 0);
+  const totalPaidAll = filtered.reduce((s, i) => s + getTotalPaid(i), 0);
+  const totalAmount = filtered.reduce((s, i) => s + i.totalAmount, 0);
+  const overdue = filtered.filter(i => getDebtStatus(i) === 'unpaid').length;
+
+  document.getElementById('debtSummary').innerHTML = `
+    <div class="debt-summary-item danger"><div class="ds-value">${formatCurrency(totalDebt)}</div><div class="ds-label">المتبقي المستحق</div></div>
+    <div class="debt-summary-item success"><div class="ds-value">${formatCurrency(totalPaidAll)}</div><div class="ds-label">المدفوع</div></div>
+    <div class="debt-summary-item ${overdue > 0 ? 'danger' : ''}"><div class="ds-value">${overdue}</div><div class="ds-label">فواتير غير مسددة</div></div>
+  `;
+
+  // Sort by remaining descending
+  filtered.sort((a, b) => (b.totalAmount - getTotalPaid(b)) - (a.totalAmount - getTotalPaid(a)));
+
+  const container = document.getElementById('debtsList');
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><p>لا توجد فواتير</p></div>';
+    updateDebtBadge();
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(i => {
+    const totalPaid = getTotalPaid(i);
+    const remaining = Math.max(0, i.totalAmount - totalPaid);
+    const pct = i.totalAmount > 0 ? Math.round((totalPaid / i.totalAmount) * 100) : 0;
+    const debtStatus = getDebtStatus(i);
+    const statusText = getDebtStatusText(debtStatus);
+    const lastPay = getLatestPaymentDate(i);
+    const borderClass = { fully: 'debt-paid', partial: 'debt-partial', unpaid: 'debt-none' }[debtStatus] || '';
+    const pctClass = pct >= 100 ? 'success' : pct > 0 ? 'warning' : 'danger';
+
+    if (filter !== 'all' && debtStatus !== filter) return;
+
+    html += `<div class="list-item ${borderClass}">
+      <div class="list-item-content">
+        <div class="list-item-title">${i.clientName} <span style="font-size:12px;color:var(--text-secondary);">فاتورة #${i.invoiceNumber}</span></div>
+        <div class="list-item-sub">${i.phone || ''} · ${formatDate(i.serviceDate)}</div>
+        <div class="list-item-sub" style="margin-top:4px;">
+          <span style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;">
+            <span><strong>الكلي:</strong> ${formatCurrency(i.totalAmount)}</span>
+            <span><strong>المدفوع:</strong> ${formatCurrency(totalPaid)}</span>
+            <span style="color:${remaining > 0 ? 'var(--danger)' : 'var(--success)'};font-weight:600;"><strong>المتبقي:</strong> ${formatCurrency(remaining)}</span>
+          </span>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill ${pctClass}" style="width:${Math.min(100, pct)}%"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:12px;flex-wrap:wrap;gap:4px;">
+          <span>${pct}% مسدد · ${statusText}</span>
+          ${lastPay ? `<span style="color:var(--text-secondary);">آخر دفعة: ${formatDate(lastPay)}</span>` : ''}
+          <span class="badge ${debtStatus === 'fully' ? 'badge-success' : debtStatus === 'partial' ? 'badge-warning' : 'badge-danger'}">${statusText}</span>
+        </div>
+      </div>
+      ${remaining > 0 ? `<div class="list-item-actions">
+        <button class="btn btn-success btn-sm" onclick="openPaymentModal('${i.id}')">تسجيل دفعة</button>
+      </div>` : ''}
+    </div>`;
+  });
+
+  container.innerHTML = html || '<div class="empty-state"><p>لا توجد نتائج للبحث</p></div>';
+  updateDebtBadge();
+}
+
+function updateDebtBadge() {
+  const invs = DB.getInvoices();
+  const unpaid = invs.filter(i => getDebtStatus(i) !== 'fully').length;
+  const badge = document.getElementById('debtBadge');
+  if (unpaid > 0) {
+    badge.textContent = unpaid;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function openPaymentModal(invoiceId) {
+  currentInvoiceId = invoiceId;
+  const invs = DB.getInvoices();
+  const i = invs.find(x => x.id === invoiceId);
+  if (!i) return;
+
+  const totalPaid = getTotalPaid(i);
+  const remaining = Math.max(0, i.totalAmount - totalPaid);
+
+  document.getElementById('paymentInvoiceInfo').innerHTML = `
+    <div><strong>العميل:</strong> ${i.clientName}</div>
+    <div><strong>رقم الفاتورة:</strong> ${i.invoiceNumber}</div>
+    <div><strong>المبلغ الكلي:</strong> ${formatCurrency(i.totalAmount)}</div>
+    <div><strong>المدفوع حتى الآن:</strong> ${formatCurrency(totalPaid)}</div>
+    <div style="color:var(--danger);font-weight:600;"><strong>المتبقي:</strong> ${formatCurrency(remaining)}</div>
+  `;
+
+  document.getElementById('payAmount').value = '';
+  document.getElementById('payAmount').max = remaining;
+  document.getElementById('payDate').value = todayStr();
+  document.getElementById('payNotes').value = '';
+  openModal('paymentModal');
+}
+
+function savePayment() {
+  const amount = Number(document.getElementById('payAmount').value) || 0;
+  const date = document.getElementById('payDate').value;
+  const notes = document.getElementById('payNotes').value.trim();
+
+  if (!amount || amount <= 0) {
+    showToast('يرجى إدخال مبلغ صحيح', 'error');
+    return;
+  }
+  if (!date) {
+    showToast('يرجى اختيار التاريخ', 'error');
+    return;
+  }
+
+  let invs = DB.getInvoices();
+  const idx = invs.findIndex(i => i.id === currentInvoiceId);
+  if (idx === -1) return;
+
+  const inv = invs[idx];
+  const totalPaid = getTotalPaid(inv);
+  const remaining = Math.max(0, inv.totalAmount - totalPaid);
+
+  if (amount > remaining) {
+    showToast('المبلغ يتجاوز المتبقي المستحق (' + formatCurrency(remaining) + ')', 'error');
+    return;
+  }
+
+  invs[idx].payments = invs[idx].payments || [];
+  invs[idx].payments.push({
+    id: genId(),
+    date: date,
+    amount: amount,
+    notes: notes
+  });
+
+  const newTotalPaid = getTotalPaid(invs[idx]);
+  if (newTotalPaid >= invs[idx].totalAmount) {
+    invs[idx].status = 'paid';
+  }
+
+  DB.setInvoices(invs);
+  closeModal('paymentModal');
+  renderDebts();
+  showToast('تم تسجيل الدفعة بنجاح', 'success');
+}
+
+// ==================== INVENTORY ====================
+function renderInventory() {
+  const items = DB.getInventory();
+  const search = (document.getElementById('invSearchParts').value || '').trim().toLowerCase();
+
+  let filtered = items;
+  if (search) {
+    filtered = items.filter(p => p.name.toLowerCase().includes(search));
+  }
+
+  // Low stock alerts
+  const lowItems = items.filter(p => p.quantity <= p.minStock);
+  const alertDiv = document.getElementById('inventoryAlerts');
+  if (lowItems.length) {
+    alertDiv.innerHTML = `<div class="card" style="background:#FFF3E0;padding:10px;font-size:13px;color:var(--warning);">
+      ⚠ ${lowItems.length} قطع تحتاج إلى تجديد المخزون: ${lowItems.map(p => p.name).join('، ')}
+    </div>`;
+  } else {
+    alertDiv.innerHTML = '';
+  }
+
+  const container = document.getElementById('inventoryList');
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><p>' + (search ? 'لا توجد نتائج' : 'المخزون فارغ') + '</p></div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(p => {
+    const isLow = p.quantity <= p.minStock;
+    return `<div class="list-item">
+      <div class="list-item-content">
+        <div class="list-item-title ${isLow ? 'low-stock' : ''}">${p.name} ${isLow ? '⚠' : ''}</div>
+        <div class="list-item-sub">متوفر: <strong>${p.quantity}</strong> · سعر الوحدة: ${formatCurrency(p.unitPrice)} · الحد الأدنى: ${p.minStock}</div>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-outline btn-sm" onclick="editInventoryItem('${p.id}')">تعديل</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteInventoryItem('${p.id}')">حذف</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openInventoryModal(data) {
+  document.getElementById('invEditPartId').value = data ? data.id : '';
+  document.getElementById('invModalTitlePart').textContent = data ? 'تعديل قطعة' : 'قطعة جديدة';
+  document.getElementById('partName').value = data ? data.name : '';
+  document.getElementById('partQty').value = data ? data.quantity : '';
+  document.getElementById('partPrice').value = data ? data.unitPrice : '';
+  document.getElementById('partMin').value = data ? data.minStock : '';
+  openModal('inventoryModal');
+}
+
+function saveInventoryItem() {
+  const id = document.getElementById('invEditPartId').value;
+  const name = document.getElementById('partName').value.trim();
+  const quantity = Number(document.getElementById('partQty').value) || 0;
+  const unitPrice = Number(document.getElementById('partPrice').value) || 0;
+  const minStock = Number(document.getElementById('partMin').value) || 0;
+
+  if (!name) {
+    showToast('يرجى إدخال اسم القطعة', 'error');
+    return;
+  }
+
+  let items = DB.getInventory();
+  if (id) {
+    const idx = items.findIndex(p => p.id === id);
+    if (idx !== -1) {
+      items[idx] = { ...items[idx], name, quantity, unitPrice, minStock };
+    }
+    showToast('تم تعديل القطعة بنجاح', 'success');
+  } else {
+    items.push({ id: genId(), name, quantity, unitPrice, minStock, createdAt: new Date().toISOString() });
+    showToast('تم إضافة القطعة بنجاح', 'success');
+  }
+  DB.setInventory(items);
+  closeModal('inventoryModal');
+  renderInventory();
+}
+
+function editInventoryItem(id) {
+  const items = DB.getInventory();
+  const p = items.find(x => x.id === id);
+  if (p) openInventoryModal(p);
+}
+
+function deleteInventoryItem(id) {
+  if (!confirm('هل أنت متأكد من حذف هذه القطعة؟')) return;
+  let items = DB.getInventory();
+  items = items.filter(p => p.id !== id);
+  DB.setInventory(items);
+  renderInventory();
+  showToast('تم حذف القطعة', '');
+}
+
+// ==================== INIT ====================
+renderDashboard();
+updateDebtBadge();
+
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function() {});
+}
+
+// Keyboard support
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+</script>
+</body>
+</html>
